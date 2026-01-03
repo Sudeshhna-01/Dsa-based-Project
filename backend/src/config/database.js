@@ -112,8 +112,8 @@ const pool = {
       // Provide helpful error messages
       if (error.message && error.message.includes('role') && error.message.includes('does not exist')) {
         const helpfulError = new Error(
-          'Database user does not exist. For PostgreSQL, use "postgres" as the user, not "root". ' +
-          'Please check your DB_USER environment variable.'
+          'Database user does not exist. For PostgreSQL, use your system username (on macOS) or "postgres" (on Linux). ' +
+          'Please check your DB_USER environment variable matches an existing PostgreSQL user.'
         );
         helpfulError.originalError = error;
         throw helpfulError;

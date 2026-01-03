@@ -18,19 +18,22 @@ A web platform that analyzes competitive programming submissions to identify wea
 ## Tech Stack
 
 **Frontend:** React, Vite, React Router, Plain CSS  
-**Backend:** Node.js, Express, MySQL, JWT  
-**Analytics:** Python (rule-based algorithms)
+**Backend:** Node.js, Express, PostgreSQL, JWT  
+**Analytics:** JavaScript (rule-based algorithms)
 
 ## Setup
 
 ### Prerequisites
 - Node.js 18+
-- Python 3.8+
-- MySQL 8.0+
+- PostgreSQL 12+ (or use cloud database)
 
 ### Database
 ```bash
-mysql -u root -p < backend/database/schema.sql
+# Create database
+createdb cp_analytics
+
+# Run schema
+psql -d cp_analytics -f backend/database/schema.postgresql.sql
 ```
 
 ### Backend
@@ -55,9 +58,10 @@ npm run dev
 ```
 PORT=3000
 DB_HOST=localhost
-DB_USER=root
+DB_USER=postgres
 DB_PASSWORD=your_password
 DB_NAME=cp_analytics
+DB_PORT=5432
 JWT_SECRET=your_secret_key
 ```
 
