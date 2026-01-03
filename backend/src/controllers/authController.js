@@ -1,10 +1,21 @@
 import { User } from '../models/user.js';
 import { generateToken } from '../config/jwt.js';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
 
 export const validateRegister = [
-  body('email').isEmail().normalizeEmail(),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Please provide a valid email address')
+    .isLength({ max: 255 })
+    .withMessage('Email must be less than 255 characters'),
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
+    .isLength({ max: 128 })
+    .withMessage('Password must be less than 128 characters')
 ];
 
 export const validateLogin = [
@@ -14,15 +25,6 @@ export const validateLogin = [
 
 export const register = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        code: 'VALIDATION_ERROR',
-        message: 'Validation failed',
-        details: errors.array()
-      });
-    }
-
     const { email, password } = req.body;
 
     const existingUser = await User.findByEmail(email);
@@ -52,15 +54,6 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        code: 'VALIDATION_ERROR',
-        message: 'Validation failed',
-        details: errors.array()
-      });
-    }
-
     const { email, password } = req.body;
 
     const user = await User.findByEmail(email);

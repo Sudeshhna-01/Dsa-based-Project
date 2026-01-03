@@ -18,7 +18,7 @@ export class Submission {
     return rows[0] || null;
   }
 
-  static async findByUserId(userId, { page = 1, limit = 10, difficulty, topic, sortBy = 'created_at', sortOrder = 'DESC' } = {}) {
+  static async findByUserId(userId, { page = 1, limit = 10, difficulty, topic, search, sortBy = 'created_at', sortOrder = 'DESC' } = {}) {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
@@ -38,6 +38,13 @@ export class Submission {
       countParams.push(topic);
     }
 
+    if (search) {
+      query += ' AND problem_name ILIKE ?';
+      const searchParam = `%${search}%`;
+      params.push(searchParam);
+      countParams.push(searchParam);
+    }
+
     const allowedSortFields = ['created_at', 'difficulty', 'topic', 'time_taken', 'problem_name'];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
     const validSortOrder = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
@@ -47,9 +54,10 @@ export class Submission {
     const [rows] = await pool.execute(query, params);
     
     let countQuery = 'SELECT COUNT(*) as total FROM submissions WHERE user_id = ?';
-    if (difficulty || topic) {
+    if (difficulty || topic || search) {
       if (difficulty) countQuery += ' AND difficulty = ?';
       if (topic) countQuery += ' AND topic = ?';
+      if (search) countQuery += ' AND problem_name ILIKE ?';
     }
     const [countRows] = await pool.execute(countQuery, countParams);
 

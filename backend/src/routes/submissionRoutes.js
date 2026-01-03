@@ -7,7 +7,9 @@ import {
   updateSubmission, 
   deleteSubmission,
   bulkCreateSubmissions,
-  validateSubmission 
+  validateSubmission,
+  validateBulkSubmissions,
+  handleValidationErrors
 } from '../controllers/submissionController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
@@ -16,12 +18,12 @@ const router = express.Router();
 // All routes require authentication
 router.use(authMiddleware);
 
-router.post('/', validateSubmission, createSubmission);
-router.post('/bulk', bulkCreateSubmissions);
+router.post('/', validateSubmission, handleValidationErrors, createSubmission);
+router.post('/bulk', validateBulkSubmissions, handleValidationErrors, bulkCreateSubmissions);
 router.get('/all', getAllSubmissions); // For export
 router.get('/', getSubmissions);
 router.get('/:id', getSubmissionById);
-router.put('/:id', validateSubmission, updateSubmission);
+router.put('/:id', validateSubmission, handleValidationErrors, updateSubmission);
 router.delete('/:id', deleteSubmission);
 
 export default router;

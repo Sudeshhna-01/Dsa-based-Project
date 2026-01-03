@@ -1,24 +1,10 @@
 import { Submission } from '../models/submission.js';
-import { body, validationResult } from 'express-validator';
+import { validateAndSanitizeSubmission, validateBulkSubmissions, handleValidationErrors } from '../middleware/validator.js';
 
-export const validateSubmission = [
-  body('problem_name').notEmpty().trim().withMessage('Problem name is required'),
-  body('difficulty').isIn(['Easy', 'Medium', 'Hard']).withMessage('Difficulty must be Easy, Medium, or Hard'),
-  body('topic').notEmpty().trim().withMessage('Topic is required'),
-  body('time_taken').isInt({ min: 0 }).withMessage('Time taken must be a positive integer')
-];
+export { validateAndSanitizeSubmission as validateSubmission, validateBulkSubmissions, handleValidationErrors };
 
 export const createSubmission = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        code: 'VALIDATION_ERROR',
-        message: 'Validation failed',
-        details: errors.array()
-      });
-    }
-
     const submission = await Submission.create(req.userId, req.body);
     res.status(201).json({
       code: 'SUCCESS',
@@ -32,18 +18,20 @@ export const createSubmission = async (req, res, next) => {
 
 export const getSubmissions = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = Math.min(parseInt(req.query.limit) || 10, 100);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 10), 100);
     const difficulty = req.query.difficulty;
     const topic = req.query.topic;
+    const search = req.query.search?.trim().substring(0, 100); // Search by problem name
     const sortBy = req.query.sortBy || 'created_at';
-    const sortOrder = req.query.sortOrder || 'DESC';
+    const sortOrder = req.query.sortOrder?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     const result = await Submission.findByUserId(req.userId, { 
       page, 
       limit, 
       difficulty, 
       topic,
+      search,
       sortBy,
       sortOrder
     });
@@ -105,15 +93,6 @@ export const getSubmissionById = async (req, res, next) => {
 
 export const updateSubmission = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        code: 'VALIDATION_ERROR',
-        message: 'Validation failed',
-        details: errors.array()
-      });
-    }
-
     const submission = await Submission.findById(req.params.id);
     
     if (!submission) {
@@ -177,29 +156,35 @@ export const deleteSubmission = async (req, res, next) => {
 export const bulkCreateSubmissions = async (req, res, next) => {
   try {
     const { submissions } = req.body;
-
-    if (!Array.isArray(submissions) || submissions.length === 0) {
-      return res.status(422).json({
-        code: 'INVALID_INPUT',
-        message: 'Submissions must be a non-empty array',
-        details: {}
-      });
-    }
-
+    const errors = [];
     const created = [];
-    for (const sub of submissions) {
+
+    for (let i = 0; i < submissions.length; i++) {
       try {
-        const submission = await Submission.create(req.userId, sub);
+        const submission = await Submission.create(req.userId, submissions[i]);
         created.push(submission);
       } catch (error) {
-        continue;
+        errors.push({
+          index: i,
+          error: error.message || 'Validation failed',
+          data: submissions[i]
+        });
       }
+    }
+
+    if (created.length === 0) {
+      return res.status(422).json({
+        code: 'BULK_CREATE_FAILED',
+        message: 'No submissions were created',
+        details: { errors, total: submissions.length }
+      });
     }
 
     res.status(201).json({
       code: 'SUCCESS',
-      message: `${created.length} submission(s) created successfully`,
-      data: created
+      message: `${created.length} of ${submissions.length} submission(s) created successfully`,
+      data: created,
+      errors: errors.length > 0 ? errors : undefined
     });
   } catch (error) {
     next(error);

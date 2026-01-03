@@ -7,8 +7,10 @@ import analyticsRoutes from './routes/analyticsRoutes.js';
 import leetcodeRoutes from './routes/leetcodeRoutes.js';
 import { logger } from './utils/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { validateEnv } from './utils/envValidator.js';
 
 dotenv.config();
+validateEnv();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,15 +26,34 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+// Security: Limit request body size
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 app.use(logger);
 
-app.get('/health', (req, res) => {
-  res.json({
-    code: 'SUCCESS',
-    message: 'Server is healthy',
-    timestamp: new Date().toISOString()
-  });
+app.get('/health', async (req, res) => {
+  try {
+    // Check database connectivity
+    const pool = (await import('./config/database.js')).default;
+    await pool.query('SELECT 1');
+    
+    res.json({
+      code: 'SUCCESS',
+      message: 'Server is healthy',
+      timestamp: new Date().toISOString(),
+      database: 'connected',
+      uptime: process.uptime()
+    });
+  } catch (error) {
+    res.status(503).json({
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'Server is unhealthy',
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });
 
 app.use('/auth', authRoutes);
