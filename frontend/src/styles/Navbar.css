@@ -1,0 +1,205 @@
+.navbar {
+  background-color: var(--navbar-bg);
+  color: var(--navbar-text);
+  padding: 0;
+  box-shadow: var(--shadow-lg);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  background-color: rgba(30, 41, 59, 0.8);
+}
+
+[data-theme="dark"] .navbar {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+.navbar-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.navbar-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navbar-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: all var(--transition-base);
+  gap: 0.75rem;
+}
+
+.navbar-logo:hover {
+  opacity: 0.9;
+  transform: translateX(2px);
+}
+
+.navbar-logo svg {
+  flex-shrink: 0;
+  transition: transform var(--transition-base);
+}
+
+.navbar-logo:hover svg {
+  transform: rotate(15deg);
+}
+
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-menu li {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-menu li a {
+  color: var(--navbar-text);
+  text-decoration: none;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  font-size: 0.875rem;
+  font-weight: 500;
+  position: relative;
+}
+
+.navbar-menu li a::after {
+  content: '';
+  position: absolute;
+  bottom: 0.25rem;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background: var(--primary-color);
+  border-radius: var(--radius-full);
+  transition: transform var(--transition-base);
+}
+
+.navbar-menu li a:hover {
+  background-color: var(--navbar-hover);
+}
+
+.navbar-menu li a:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.navbar-user {
+  color: var(--navbar-text);
+  font-size: 0.875rem;
+  padding: 0.625rem 1rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.navbar-logout {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--navbar-text);
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.navbar-logout:hover {
+  background-color: var(--navbar-hover);
+  border-color: var(--border-color-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 0.5rem;
+  gap: 4px;
+  transition: all var(--transition-base);
+}
+
+.navbar-toggle:hover {
+  background-color: var(--navbar-hover);
+}
+
+.navbar-toggle span {
+  width: 20px;
+  height: 2px;
+  background-color: var(--navbar-text);
+  transition: all var(--transition-base);
+  border-radius: 2px;
+}
+
+.navbar-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.navbar-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 1rem;
+  }
+
+  .navbar-toggle {
+    display: flex;
+  }
+
+  .navbar-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--navbar-bg);
+    flex-direction: column;
+    padding: 0.75rem;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-base);
+    align-items: stretch;
+    backdrop-filter: blur(10px);
+  }
+
+  .navbar-menu.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .navbar-menu li a,
+  .navbar-menu li button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .navbar-menu li a::after {
+    display: none;
+  }
+}

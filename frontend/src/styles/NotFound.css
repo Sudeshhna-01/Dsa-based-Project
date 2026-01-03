@@ -1,0 +1,46 @@
+.not-found-page {
+  text-align: center;
+  padding: 6rem 1rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.not-found-page h1 {
+  font-size: 8rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.not-found-page h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.not-found-page p {
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .not-found-page {
+    padding: 4rem 1rem;
+  }
+
+  .not-found-page h1 {
+    font-size: 5rem;
+  }
+
+  .not-found-page h2 {
+    font-size: 1.5rem;
+  }
+}
