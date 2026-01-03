@@ -11,7 +11,7 @@ const getDbConfig = () => {
   if (process.env.DATABASE_URL) {
     return {
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: true
     };
   }
 
@@ -37,7 +37,7 @@ const getDbConfig = () => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME || 'cp_analytics',
     port: process.env.DB_PORT || 5432,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: true
   };
 };
 
